@@ -10,10 +10,10 @@ def get_y(bond_deal, interval): #bond_deal-此处传入bond_deal.xlsx源数据; 
     bond_deal = bond_deal[ind]
     bond_deal['TRANSACT_TIME'] = pd.to_datetime(bond_deal['TRANSACT_TIME'])
     bond_deal.set_index('TRANSACT_TIME', inplace=True)
-    bond_deal["VOLUMN*PRICE"] = bond_deal["TRADE_VOLUME"] * bond_deal["OPEN_PRICE"]
+    bond_deal["VOLUMN*PRICE"] = bond_deal["TRADE_VOLUME"] * bond_deal["LATEST_TRANS_PRICE"]
     sample = bond_deal.resample(interval,label = 'right')
     #1st price in every window with size=interval 
-    open_p = sample.first()["OPEN_PRICE"]
+    open_p = sample.first()["LATEST_TRANS_PRICE"]
     open_p = open_p.dropna()
     sum = sample.sum()
     avg_p = sum["VOLUMN*PRICE"]/sum['TRADE_VOLUME']
@@ -46,12 +46,14 @@ y4 = y2 - open_p
 y4 = y4.dropna()
 y5 = open_p.diff().dropna()
 y6 = y1.drop(y1.index[0])  
-y7 = y5/avg_p.drop(y1.index[0])
-y7 = y6.dropna()
+y7 = (y6/y2)
+y7 = y7.dropna()
 
 Y = pd.DataFrame({"delta_avg_p": y1, " average price": y2,
                   "return": y3, "avg_minus_open":y4, " delta_open_p": y5, "delta_avg_p_next":y6,
                   "return_next": y7
                   })
 
+Y.to_csv("Get_Y")
 
+# %%
