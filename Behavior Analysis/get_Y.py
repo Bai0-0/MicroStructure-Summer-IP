@@ -54,6 +54,6 @@ Y = pd.DataFrame({"delta_avg_p": y1, " average price": y2,
                   "return_next": y7
                   })
 
-Y.to_csv("Get_Y")
+Y.to_csv("Get_Y.csv")
 
 # %%
