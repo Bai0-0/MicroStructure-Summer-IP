@@ -24,6 +24,8 @@ def feature_engineering(data):
 
     data_all = data_all.merge(X_data.diff(1), left_index=True, right_index=True, suffixes=['',f'_diff'])
     data_all = data_all.merge(X_data.diff(2), left_index=True, right_index=True, suffixes=['',f'_diff2'])
+    data_all = data_all.merge(y_data.shift(1), left_index=True, right_index=True, suffixes=['',f'_y_lag1'])
+
 
     ind = data_all.corr().loc['delta_avg_p'].abs().gt(0.08)
     ind[y_col] = True
@@ -62,6 +64,7 @@ def feature_engineering(data):
 
     data_all = data_all.merge(X_data.diff(1), left_index=True, right_index=True, suffixes=['',f'_diff'])
     data_all = data_all.merge(X_data.diff(2), left_index=True, right_index=True, suffixes=['',f'_diff2'])
+    data_all = data_all.merge(y_data.shift(1), left_index=True, right_index=True, suffixes=['',f'_y_lag1'])
 
     ind = data_all.corr().loc['delta_avg_p'].abs().gt(0.08)
     ind[y_col] = True
