@@ -29,8 +29,8 @@ bond_22 = bond_deal[bond_deal["SYMBOL"] == "22国开05"]
 # feature_22 = Get_x(interval,bond_22)
 # feature_22 =  feature_22.Get_Total().dropna()
 # feature_21["instru_id"] , feature_22["instru_id"]  = 1, 2
-# feature_21.to_csv("feature_21.csv")
-# feature_22.to_csv("feature_22.csv")
+# feature_21.to_csv("feature_21_"+interval+".csv")
+# feature_22.to_csv("feature_22_"+interval+".csv")
 
 # %%
 #get label y, 关掉这个file再重新跑， feature_21和y_21不能同时生成
@@ -40,7 +40,7 @@ y_22 = Get_y(interval,bond_22)
 y_22 = y_22.cal_y().dropna()
 # %%
 # append x and y
-feature_21 , feature_22 = pd.read_csv("feature_21.csv"), pd.read_csv("feature_22.csv")
+feature_21 , feature_22 = pd.read_csv("feature_21_"+interval+".csv"), pd.read_csv("feature_22_"+interval+".csv")
 feature_21['TRANSACT_TIME'] = pd.to_datetime(feature_21['TRANSACT_TIME']) #format='%Y%m%d-%H:%M:%S.%j# %%
 feature_21.set_index('TRANSACT_TIME',inplace = True)
 feature_22['TRANSACT_TIME'] = pd.to_datetime(feature_22['TRANSACT_TIME'])
@@ -63,8 +63,8 @@ feature_t, feature_ts, feature_tf = feature_t.get_all(), feature_ts.get_all(), f
 table_add_future = table.join(feature_t, how="left").join(feature_ts,how="left").join(feature_tf,how="left").dropna()
 
 # %%
-# table.to_csv("crossectional_analysis.csv")
-# table_add_future.to_csv("round4_future.csv")
+table.to_csv("crossectional_analysis+_"+interval+".csv")
+table_add_future.to_csv("round4_future_"+interval+".csv")
 
 
 # %%
