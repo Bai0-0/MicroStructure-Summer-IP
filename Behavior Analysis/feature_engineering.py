@@ -8,7 +8,7 @@ import os
 # 1. bond feature engineering
 y_col = ['delta_avg_p', ' average price', 'return', 'avg_minus_open',
        ' delta_open_p', 'open_minus_close', 'delta_avg_p_next', 'return_next']
-data = pd.read_csv('crossectional_analysis+_30min.csv',index_col=0)
+data = pd.read_csv('crossectional_analysis+_10min.csv',index_col=0)
 data = data.reset_index().set_index(['time','instru_id']).drop(columns='time.1').rename(columns={'\delta p autocorr':'delta p autocorr'})
 data_instru1 = data.loc[:,1,:].copy()
 
@@ -42,12 +42,12 @@ data_f = pd.concat([data_instru1_f[col_list],data_instru2_f[col_list]])
 data_f.shape
 
 #%%
-data_f.to_csv('bond_feature_and_y_crossectional.csv')
+data_f.to_csv('bond_feature_and_y_crossectional_10min.csv')
 
 #%%
 
 # 2. bond and future
-data = pd.read_csv('round4_future_30min.csv', index_col=0)
+data = pd.read_csv('round4_future_10min.csv', index_col=0)
 data.reset_index()
 #%%
 data = data.reset_index().set_index(['time','instru_id']).drop(columns='time.1').rename(columns={'\delta p autocorr':'delta p autocorr'})
@@ -80,6 +80,4 @@ col_list = y_col+list((set(data_instru1_f.columns.to_list())&set(data_instru2_f.
 data_f = pd.concat([data_instru1_f[col_list],data_instru2_f[col_list]])
 data_f
 #%%
-data_f.to_csv('bond_future_feature_and_y_crossectional.csv')
-
-# %%
+data_f.to_csv('bond_future_feature_and_y_crossectional_10min.csv')
