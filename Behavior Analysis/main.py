@@ -15,7 +15,7 @@ sys.path.append(base_dir)
 # %%
 #if __name__ == '__main__':
 
-interval = "10min"
+interval = "30min"
 bond_deal = pd.read_csv('Data_File/bond_deal.csv')
 liquid = bond_deal["SYMBOL"].value_counts()
 
@@ -62,9 +62,17 @@ feature_t, feature_ts, feature_tf = Get_TF_x(interval,t,".T"), Get_TF_x(interval
 feature_t, feature_ts, feature_tf = feature_t.get_all(), feature_ts.get_all(), feature_tf.get_all()
 table_add_future = table.join(feature_t, how="left").join(feature_ts,how="left").join(feature_tf,how="left").dropna()
 
+
+
+
 # %%
+#table = table.reset_index(drop = True)
+#table_add_future = table_add_future.reset_index(drop = True)
+table = table.set_index(['time','instru_id'],drop=False) #set multiindex
+table_add_future = table_add_future.set_index(['time','instru_id'],drop=False)
 table.to_csv("crossectional_analysis+_"+interval+".csv")
 table_add_future.to_csv("round4_future_"+interval+".csv")
+
 
 
 # %%

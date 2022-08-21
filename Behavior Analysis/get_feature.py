@@ -40,7 +40,7 @@ class Get_x(object):
       bond_deal.set_index('TRANSACT_TIME', inplace=True)
 
       def f(x):
-          # delta p autocorr
+          # delta p autocorr、
           res1 = x['LATEST_TRANS_PRICE'].diff().autocorr(lag=1)
           res2 = ((x['DIRECTION1']-1.5)*2).autocorr(lag=1)
           res3 = x.loc[x['DIRECTION1']==2,'LATEST_TRANS_PRICE'].mean() - x.loc[x['DIRECTION1']==1,'LATEST_TRANS_PRICE'].mean()
@@ -169,26 +169,40 @@ class Get_TF_x(object):  #create treasure future feature, use ask/bid 1
     df1["close_over_open"] = np.log(np.power(df1["ClosePrice"]/df1["OpenPrice"],2))
     df1["mid_quote"] = (df1.BidPrice1 + df1.AskPrice1)/2
     df1['trade_volume'] = df1.BidPrice1 * df1.BidVolume1 + df1.AskPrice1* df1.AskVolume1
-
+    #df1['delta_mq_autocorr'] = df1["mid_quote"].diff().autocorr(lag = 1)
     window = df1.resample(self.interval,label='right')
     count = window.count()["mid_quote"]
     df1_sum = window.sum()
+
     #Parkinson volatility
     Parks = np.sqrt((1/4*count*np.log(2))*df1_sum["high_over_low"])
     #Garman-Klass 
     Gk = np.sqrt((1/2*count)*df1_sum["high_over_low"]-((2*np.log(2)-1)/count)*df1_sum["close_over_open"])
-
     vol_series = pd.DataFrame({" Parks":Parks,
                             "Gk": Gk
-                            })
+                              })
     vol_series = vol_series.dropna()
     vol_series = vol_series.loc[(vol_series != 0).any(axis=1)]
+
+    #mid_quote feature
+    avg_mq = df1_sum.mid_quote/count   #mid quote average value
+    def f(x):
+    # delta p autocorr
+      res = x['mid_quote'].diff().autocorr(lag=1)
+      return res
+    delta_mq_autocorr = df1.resample(self.interval,label = 'right').apply(f)
+    mq = pd.concat( [avg_mq, delta_mq_autocorr],axis = 1)
 
     #trade volumn
     avg_volume = df1_sum["trade_volume"]/count
     trade_size = pd.concat( [df1_sum['trade_volume'], avg_volume],axis = 1)
-    total = vol_series.join(trade_size).dropna()
-    total.columns = ['Parks'+self.id, 'GK'+ self.id, 'trade_volumn'+self.id,'avg_volume'+self.id]
+    total = pd.concat([vol_series,mq,trade_size],axis = 1)
+    total.columns = ['Parks'+self.id, 'GK'+ self.id, 'avg mq'+self.id,'delta mq autocorr'+self.id,'trade_volumn'+self.id,'avg_volume'+self.id ]
+    total = total.drop(total.index[0:2]) #删除3月1日9点半前的数据，make all features have value
+    total['Parks'+self.id]= total['Parks'+self.id].fillna(0)
+    total["GK"+self.id] = total["GK"+self.id].fillna(0)
+    total = total.fillna(method='ffill')
+    
     return total
 # %% TEST
 # data = pd.read_csv("Data_File/T2206_1Sec.csv")
