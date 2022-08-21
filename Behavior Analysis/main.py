@@ -15,7 +15,7 @@ sys.path.append(base_dir)
 # %%
 #if __name__ == '__main__':
 
-interval = "30min"
+interval = "10min"
 bond_deal = pd.read_csv('Data_File/bond_deal.csv')
 liquid = bond_deal["SYMBOL"].value_counts()
 
