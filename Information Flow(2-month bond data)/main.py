@@ -3,6 +3,8 @@ Generate feature and y
 feature: price autocorrelation, (direction autocorrelation, spread autocorrelation), volatility,
          total trade amount, average trade amount,Timt to future maturity
 2022-08-25
+
+When using different bond, switch bond_index,interval ans instID
 '''
 
 # %%
@@ -20,11 +22,12 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_dir)
 # %%
 #merge all bond trade data
+bond_index = '190215' #19国开10 190210;  190205; 190215
 data = pd.read_csv("Bond trade data/2019-20.csv",usecols=["PRICE","TRDDATE","TRDTIME","I_CODE","TRDFV","TRDCASHAMT","DIRCTION"])
-data = data[data.I_CODE=="190210"] #21国开10
+data = data[data.I_CODE==bond_index] 
 for i in range(19,0,-1):
     df = pd.read_csv("Bond trade data/2019-"+ str(i) +".csv",usecols=["PRICE","TRDDATE","TRDTIME","I_CODE","TRDFV","TRDCASHAMT","DIRCTION"])
-    df = df[df.I_CODE=="190210"]
+    df = df[df.I_CODE==bond_index]
     data = pd.concat([data,df],axis = 0,ignore_index=True)
 data['TIMESTAMP'] = data["TRDDATE"] +"  " +data["TRDTIME"]
 data["TIMESTAMP"]=pd.to_datetime(data.TIMESTAMP)
@@ -36,8 +39,7 @@ data.set_index(data.TIMESTAMP, inplace=True, drop=True)
 '''
 generate_feature
 '''
-#interval = "30min" 
-interval = "10min"
+interval = "10min" 
 matur1 = "2019-09-13 18:30:00" #BOND Future maturity, assume offset at 18:30 
 matur2 = "2019-12-13 18:30:00"
 data["TTM"] = (pd.to_datetime(matur1)-data.index).days*24*60+(pd.to_datetime(matur1)-data.index).seconds/60
@@ -101,8 +103,25 @@ Y = pd.DataFrame({"delta_avg_p": y1, " average price": y2,
 
 # %%
 #merge feature and y, index=TIMESTAMP
+instID = 3
 feature_y_table = res_table.join(Y,how ='inner').drop(res_table.index[0])
-feature_y_table.to_csv('feature_y_table_'+interval)
+feature_y_table.insert(0,"instID",instID)
+feature_y_table.to_csv('feature & y _'+bond_index+"_"+interval+'.csv')
+
+# %%
+#Combine different bond as crossectional
+df, df1, df2 = pd.read_csv('feature & y _190210_10min.csv'), pd.read_csv('feature & y _190205_10min.csv'), pd.read_csv('feature & y _190215_10min.csv')
+table_10min = pd.concat([df,df1,df2], axis=0,ignore_index=True)
+table_10min = table_10min.set_index(['TIMESTAMP','instID'],drop = True)
+table_10min.to_csv('table_10min.csv')
+
+# %%
+df, df1, df2 = pd.read_csv('feature & y _190210_30min.csv'), pd.read_csv('feature & y _190205_30min.csv'), pd.read_csv('feature & y _190215_30min.csv')
+table_30min = pd.concat([df,df1,df2], axis=0,ignore_index=True)
+table_30min = table_30min.set_index(['TIMESTAMP','instID'],drop = True)
+table_30min.to_csv('table_30min.csv')
+
+
 
 
 # %%

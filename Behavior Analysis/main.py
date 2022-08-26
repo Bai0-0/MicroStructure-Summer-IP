@@ -36,6 +36,9 @@ bond_22 = bond_deal[bond_deal["SYMBOL"] == "22国开05"]
 #get label y, 关掉这个file再重新跑， feature_21和y_21不能同时生成
 y_21 = Get_y(interval,bond_21)
 y_21 = y_21.cal_y().dropna()
+
+
+
 y_22 = Get_y(interval,bond_22)
 y_22 = y_22.cal_y().dropna()
 # %%
